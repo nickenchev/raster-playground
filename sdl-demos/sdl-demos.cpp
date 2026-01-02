@@ -24,16 +24,31 @@ void initialize()
 	SDL_SetRenderLogicalPresentation(renderer, logW, logH, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 }
 
+SDL_Texture *skylineTex = nullptr;
+SDL_Texture *plant1Tex = nullptr;
+SDL_Texture *carForwardTex = nullptr;
+
+void load()
+{
+	skylineTex = IMG_LoadTexture(renderer, "data/skyline.png");
+	SDL_SetTextureScaleMode(skylineTex, SDL_SCALEMODE_NEAREST);
+	plant1Tex = IMG_LoadTexture(renderer, "data/plant1.png");
+	SDL_SetTextureScaleMode(plant1Tex, SDL_SCALEMODE_NEAREST);
+	carForwardTex = IMG_LoadTexture(renderer, "data/car.png");
+	SDL_SetTextureScaleMode(carForwardTex, SDL_SCALEMODE_NEAREST);
+}
+
+void cleanup()
+{
+	SDL_DestroyTexture(carForwardTex);
+	SDL_DestroyTexture(skylineTex);
+	SDL_DestroyTexture(plant1Tex);
+}
+
 int main()
 {
 	initialize();
-
-	SDL_Texture *skylineTex = IMG_LoadTexture(renderer, "data/skyline.png");
-	SDL_SetTextureScaleMode(skylineTex, SDL_SCALEMODE_NEAREST);
-	SDL_Texture *plant1Tex = IMG_LoadTexture(renderer, "data/plant1.png");
-	SDL_SetTextureScaleMode(plant1Tex, SDL_SCALEMODE_NEAREST);
-	SDL_Texture *carForwardTex = IMG_LoadTexture(renderer, "data/car.png");
-	SDL_SetTextureScaleMode(carForwardTex, SDL_SCALEMODE_NEAREST);
+	load();
 
 	const float metersPerSegment = 2.0f;
 	const float metersPerUnit = 1.0f;
@@ -112,7 +127,7 @@ int main()
 			{
 				directionX += 1;
 			}
-			carX += directionX * 20.0f * fixedStep;
+			carX += directionX * 30.0f * fixedStep;
 
 			// will use this to accel slower at high speeds
 			// and draw things more densely at high speeds later
@@ -293,7 +308,7 @@ int main()
 			};
 			SDL_RenderTexture(renderer, carForwardTex, nullptr, &dst);
 
-				int kmPerHour = (velocity * 3600) / (1000 / metersPerUnit) * speedMultFactor;
+			int kmPerHour = (velocity * 3600) / (1000 / metersPerUnit) * speedMultFactor;
 			SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 			char buffer[255];
 			sprintf(buffer, "S: %d, Z: %.2f", kmPerHour, camZ);
@@ -304,10 +319,7 @@ int main()
 		}
 	}
 
-	SDL_DestroyTexture(carForwardTex);
-	SDL_DestroyTexture(skylineTex);
-	SDL_DestroyTexture(plant1Tex);
-
+	cleanup();
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
